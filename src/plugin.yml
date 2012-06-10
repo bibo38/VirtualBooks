@@ -1,0 +1,8 @@
+name: VirtualBooks
+version: 0.8
+author: bibo38
+main: me.bibo38.VirtualBooks.VirtualBooks
+commands:
+  vbooks:
+    description: Manage local books
+    usage: /vbooks [create|remove|write|read]
