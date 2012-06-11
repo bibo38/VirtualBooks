@@ -2,6 +2,7 @@ name: VirtualBooks
 version: 0.8
 author: bibo38
 main: me.bibo38.VirtualBooks.VirtualBooks
+depend: [Bibo38Lib]
 commands:
   vbooks:
     description: Manage local books

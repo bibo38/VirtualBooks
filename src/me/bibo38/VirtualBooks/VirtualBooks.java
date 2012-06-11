@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import me.bibo38.Bibo38Lib.Permissions;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,11 +24,15 @@ public class VirtualBooks extends JavaPlugin
 	private File bookDir;
 	private HashMap<String, Book> books;
 	
+	private Permissions perm;
+	
 	public void onEnable()
 	{
 		log = this.getLogger();
 		pdFile = this.getDescription();
 		bookDir = new File(this.getDataFolder(), "books");
+		
+		perm = new Permissions("vbooks");
 		
 		if(!bookDir.exists())
 		{
@@ -67,7 +73,7 @@ public class VirtualBooks extends JavaPlugin
 		if(!(cs instanceof Player))
 		{
 			// Kein Spieler
-			
+			return true;
 		}
 		
 		String msg = ""; // Rückmeldung
@@ -77,7 +83,7 @@ public class VirtualBooks extends JavaPlugin
 		{
 			if(args.length >= 2)
 			{
-				if(args[0].equals("create"))
+				if(args[0].equals("create") && perm.hasPerm((Player) cs, "create"))
 				{
 					if(books.containsKey(args[1]))
 					{
@@ -98,7 +104,7 @@ public class VirtualBooks extends JavaPlugin
 					}
 				}
 				
-				if(args[0].equals("read"))
+				if(args[0].equals("read") && perm.hasPerm((Player) cs, "read"))
 				{
 					if(books.containsKey(args[1]))
 					{
@@ -121,7 +127,7 @@ public class VirtualBooks extends JavaPlugin
 					}
 				}
 				
-				if(args[0].equals("write"))
+				if(args[0].equals("write") && perm.hasPerm((Player) cs, "write"))
 				{
 					if(books.containsKey(args[1]))
 					{
@@ -147,7 +153,7 @@ public class VirtualBooks extends JavaPlugin
 					}
 				}
 				
-				if(args[0].equals("writeend"))
+				if(args[0].equals("writeend") && perm.hasPerm((Player) cs, "write"))
 				{
 					if(books.containsKey(args[1]))
 					{
@@ -169,6 +175,41 @@ public class VirtualBooks extends JavaPlugin
 					} else
 					{
 						msg = "Book doesn't exist!";
+					}
+				}
+				
+				if(args[0].equals("remove") && perm.hasPerm((Player) cs, "remove"))
+				{
+					if(args.length >= 3)
+					{
+						try
+						{
+							// Ok, Zeile gesetzt
+							// Lese alles ein und lösche diese Zeile
+							String erg = "";
+							int x = 1;
+							int hin = Integer.parseInt(args[2]);
+							for(String i : books.get(args[1]).read().split("\n"))
+							{
+								if(x != hin) // Falls es nicht die Zeile ist, setze sie hin
+								{
+									erg += i + "\n";
+								}
+								x++;
+							}
+							
+							books.get(args[1]).setText(erg);
+							books.get(args[1]).write();
+							
+							success = true;
+							msg = "Removed line successfully!";
+						} catch(IOException e)
+						{
+							msg = "Error reading/writing book";
+						}
+					} else
+					{
+						msg = "You must specify a line number!";
 					}
 				}
 			} else
