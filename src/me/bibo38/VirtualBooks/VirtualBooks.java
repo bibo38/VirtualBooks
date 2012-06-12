@@ -14,7 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class VirtualBooks extends JavaPlugin
 {
-	private Logger log;
+	public static Logger log;
 	private PluginDescriptionFile pdFile;
 	private CommandListener myCommandListener;
 	

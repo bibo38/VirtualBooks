@@ -1,5 +1,6 @@
 package me.bibo38.VirtualBooks;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,11 +16,70 @@ public class CommandListener
 	
 	private String msg = "";
 	private HashMap<String, Book> books;
+	private File bookDir;
 	
 	public CommandListener()
 	{
 		books = new HashMap<String, Book>();
 		books.clear();
+		
+		// Befüllen mit vorhandenen Büchern
+		bookDir = new File(main.getDataFolder(), "books");
+		reload();
+	}
+	
+	private boolean reload()
+	{
+		books.clear();
+		String dateien[] = bookDir.list();
+		
+		for(String aktbook : dateien)
+		{
+			try
+			{
+				Book tmp = new Book(aktbook.substring(0, aktbook.length() - 4), main); // das .txt abziehen
+				books.put(aktbook.substring(0, aktbook.length() - 4), tmp);
+			} catch (IOException e)
+			{
+				msg = "Error reading book " + aktbook;
+				e.printStackTrace();
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean list(CommandSender cs)
+	{
+		Iterator<String> it = books.keySet().iterator();
+		while(it.hasNext())
+		{
+			cs.sendMessage(it.next());
+		}
+		
+		return true;
+	}
+	
+	private boolean delete(String name)
+	{
+		if(!books.containsKey(name))
+		{
+			msg = "Book doesn't exist!"; // Existiert nicht
+			return false;
+		}
+		
+		books.remove(name);
+		File tmp = new File(bookDir, name + ".txt");
+		if(!tmp.delete())
+		{
+			msg = "Error deleting file!";
+			return false;
+		} else
+		{
+			msg = "Successful deleted!";
+			return true;
+		}
 	}
 	
 	private boolean isWritingBook(Player player)
@@ -218,6 +278,11 @@ public class CommandListener
 					success = this.read(cs, args[1]);
 				}
 				
+				if(args[0].equals("delete") && VirtualBooks.perm.hasPerm((Player) cs, "delete"))
+				{
+					success = this.delete(args[1]);
+				}
+				
 				if(args[0].equals("write") && VirtualBooks.perm.hasPerm((Player) cs, "write"))
 				{
 					success = this.write(player, args[1]);
@@ -241,6 +306,16 @@ public class CommandListener
 			if(args[0].equals("writeend") && VirtualBooks.perm.hasPerm((Player) cs, "write"))
 			{
 				success = this.writeend(player);
+			}
+			
+			if(args[0].equals("reload") && VirtualBooks.perm.hasPerm((Player) cs, "reload"))
+			{
+				success = this.reload();
+			}
+			
+			if(args[0].equals("list") && VirtualBooks.perm.hasPerm((Player) cs, "list"))
+			{
+				success = this.list(cs);
 			}
 		}
 		
