@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Book
 {
 	private static File bookDir = null;
 	private static JavaPlugin main;
+	
+	private ChatListener writeListener;
 	
 	private File bookFile;
 	private String text;
@@ -21,6 +24,8 @@ public class Book
 	{
 		main = emain;
 		name = ename;
+		
+		writeListener = new ChatListener(main);
 		
 		if(bookDir == null)
 		{
@@ -96,5 +101,31 @@ public class Book
 	protected void setText(String etext)
 	{
 		text = etext;
+	}
+	
+	protected boolean setWriter(Player player) throws IOException, NullPointerException
+	{
+		if(player == null)
+		{
+			throw new NullPointerException();
+		}
+		
+		if(writeListener.getSchreiber() != null)
+		{
+			return false;
+		}
+		
+		writeListener.setSchreiber(player, this);
+		return true;
+	}
+	
+	public Player getWriter()
+	{
+		return writeListener.getSchreiber();
+	}
+	
+	protected void removeWriter() throws IOException
+	{
+		writeListener.removeSchreiber();
 	}
 }

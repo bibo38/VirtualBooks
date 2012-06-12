@@ -31,9 +31,12 @@ public class ChatListener implements Listener
 	
 	protected void removeSchreiber() throws IOException
 	{
-		aktbook.write();
-		aktbook = null;
-		schreiber = null;
+		if(aktbook  != null)
+		{
+			aktbook.write();
+			aktbook = null;
+			schreiber = null;
+		}
 	}
 	
 	public Player getSchreiber()
